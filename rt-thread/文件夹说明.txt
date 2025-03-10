@@ -1,0 +1,4 @@
+src 		RT-Thread内核代码文件
+libcpu 		各类芯片/内核移植代码，比如STM32
+include		RT-Thread内核头文件
+components	RT-Thread外部组件代码，如Finsh/RT-Thread命令行，Lwip，drivers/驱动
