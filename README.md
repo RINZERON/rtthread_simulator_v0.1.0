@@ -37,3 +37,7 @@ finsh|		./rt-thread/components/finsh
 kernel-sample|	./kernel-sample-0.1.0
 
 
+## 调试代码注意事项
+
+1. 在Keil仿真调试过程中，无法直接修改代码。必须退出调试模式，修改代码后重新编译和下载程序，才能继续调试。这是由调试器的工作机制决定的，适用于大多数嵌入式开发环境。
+
