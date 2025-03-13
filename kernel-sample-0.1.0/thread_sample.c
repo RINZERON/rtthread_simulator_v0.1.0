@@ -51,7 +51,7 @@ static void thread3_entry(void *parameter)
 }
 
 
-ALIGN(RT_ALIGN_SIZE)
+ALIGN(RT_ALIGN_SIZE)				//对齐
 static char thread2_stack[1024];	//分配线程栈的空间
 static struct rt_thread thread2;	//静态定义线程控制块
 /* 线程2入口 */
