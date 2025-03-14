@@ -27,13 +27,15 @@ void thread_entry(void *parameter)
     while (1)
     {
         /* 关闭中断 */
-        level = rt_hw_interrupt_disable();
+		level = rt_hw_interrupt_disable();
         cnt += no;
+		rt_kprintf("protect thread[%d]'s counter is %d\n", no, cnt);
         /* 恢复中断 */
         rt_hw_interrupt_enable(level);
 
-        rt_kprintf("protect thread[%d]'s counter is %d\n", no, cnt);
-        rt_thread_mdelay(no * 10);
+        
+		//rt_thread_delay(1);
+        //rt_thread_mdelay(no * 10);
     }
 }
 
