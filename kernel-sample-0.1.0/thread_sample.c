@@ -30,21 +30,24 @@ static void thread1_entry(void *parameter)
 
     while (1)
     {
+		rt_kprintf("Running thread is: %s ", rt_thread_self()->name);
         /* 线程1采用低优先级运行，一直打印计数值 */
-        rt_kprintf("thread1 count: %d\n", count ++);
+        rt_kprintf(" count: %d\n", count ++);
         rt_thread_mdelay(500); //延时500ms
     }
 }
 
-/* 线程1的入口函数 */
+/* 线程3的入口函数 */
 static void thread3_entry(void *parameter)
 {
     rt_uint32_t count = 0;
 
     while (count<100)
-    {
+    {	
+		/*rt_thread_self()获取当前运行的线程*/
+		rt_kprintf("Running thread is: %s ",rt_thread_self()->name);
         /* 线程3采用最高优先级运行，打印计数值到100 */
-        rt_kprintf("thread3 count: %d\n", count+=10);
+        rt_kprintf("count: %d\n", count+=10);
         rt_thread_mdelay(500); //延时500ms
 		/*线程3让出*/
     }
@@ -105,6 +108,7 @@ int thread_sample(void)
 	 /* 如果获得线程控制块，启动这个线程 */
     if (tid3 != RT_NULL)
         rt_thread_startup(tid3);
+	
 
     return 0;
 }
