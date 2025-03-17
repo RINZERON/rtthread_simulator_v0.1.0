@@ -15,6 +15,7 @@
 
 static rt_thread_t tid1 = RT_NULL;
 static rt_thread_t tid2 = RT_NULL;
+static rt_thread_t tid3 = RT_NULL;
 static rt_thread_t tid_test = RT_NULL;
 
 /* 线程1的入口函数 */
@@ -25,7 +26,7 @@ static void thread1_entry(void *parameter)
     while (1)
     {
 		tid_test = rt_thread_self();
-		rt_kprintf("Running thread is: %s state is :%x \n", tid_test->name, tid_test->stat);
+		rt_kprintf("Running thread is: %s, state is :%x\n", tid_test->name, tid_test->stat);
         /* 线程1采用低优先级运行，一直打印计数值 */
         rt_kprintf(" count: %d\n", count ++);
         if(count %5 ==0)
@@ -33,7 +34,7 @@ static void thread1_entry(void *parameter)
 			//rt_kprintf("Yield thread is: %s state is :%x \n", rt_thread_self()->name, rt_thread_self()->stat);
 			//rt_thread_yield();
 			rt_thread_suspend(tid1);
-			rt_kprintf("suspend thread is: %s state is :%x \n", tid1->name, tid1->stat);
+			rt_kprintf("suspend thread is: %s, state is :%x\n", tid1->name, tid1->stat);
 			rt_schedule();
 		}
     }
@@ -42,7 +43,7 @@ static void thread1_entry(void *parameter)
 /* 线程2的入口函数 */
 static void thread2_entry(void *parameter)
 {
-	
+	rt_uint32_t count = 0;
 	while (1)
     {	
 		/* thread1 状态stat is ready 0x01*/
@@ -57,12 +58,29 @@ static void thread2_entry(void *parameter)
 		
 		/*rt_thread_self()获取当前运行的线程*/
 		rt_kprintf("Running thread is: %s, state is: %x\n",rt_thread_self()->name,rt_thread_self()->stat); 
+		
 		rt_thread_resume(tid1);
+		
+		/* 恢复和不恢复thread3 */
+		if(count%2 ==0)
+		{
+			rt_thread_resume(tid3);
+		}
 		rt_thread_yield();
+		count++;
 		//rt_thread_mdelay(50);
     }
 }
 
+
+static void thread3_entry(void *parameter)
+{
+	while(1)
+	{
+		rt_kprintf("Running thread is: %s, state is: %x\n",rt_thread_self()->name,rt_thread_self()->stat);
+		rt_thread_mdelay(50000); //长时间挂起
+	}
+}
 /* 线程创建 */
 int threadyield_sample(void)
 {
@@ -85,6 +103,15 @@ int threadyield_sample(void)
 	 /* 如果获得线程控制块，启动这个线程 */
     if (tid2 != RT_NULL)
         rt_thread_startup(tid2);
+	
+	
+	tid3 = rt_thread_create("thread3",
+             thread3_entry, RT_NULL,
+             THREAD_STACK_SIZE,
+             THREAD_PRIORITY-1, THREAD_TIMESLICE);
+	 /* 如果获得线程控制块，启动这个线程 */
+    if (tid3 != RT_NULL)
+        rt_thread_startup(tid3);
 	
 	return 0;
 }
