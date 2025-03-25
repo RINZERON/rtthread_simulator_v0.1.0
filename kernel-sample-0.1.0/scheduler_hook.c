@@ -21,6 +21,7 @@
 
 /* 针对每个线程的计数器 */
 volatile rt_uint32_t count[2];
+static rt_uint32_t switch_time = 0;
 
 /* 线程1、2共用一个入口，但入口参数不同 */
 static void thread_entry(void* parameter)
@@ -41,6 +42,8 @@ static rt_thread_t tid2 = RT_NULL;
 static void hook_of_scheduler(struct rt_thread* from, struct rt_thread* to)
 {
     rt_kprintf("from: %s -->  to: %s \n", from->name , to->name);
+	switch_time++;
+	rt_kprintf("switch times : %d\n", switch_time);
 }
 
 int scheduler_hook(void)
