@@ -22,6 +22,7 @@
 | semaphore_sample.c | 信号量的使用|
 | signal_sample.c  | 信号的使用 |
 | thread_sample.c | 线程的使用 |
+|threadyield_sample.c|线程让出资源的使用|
 | timer_sample.c  | 定时器的使用 |
 | timeslice_sample.c  | 线程时间片 |
 
