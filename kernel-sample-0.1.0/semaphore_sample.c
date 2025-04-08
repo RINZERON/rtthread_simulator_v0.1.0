@@ -17,14 +17,14 @@
 #include <rtthread.h>
 
 #define THREAD_PRIORITY         25
-#define THREAD_TIMESLICE        5
+#define THREAD_TIMESLICE        1	//5
 
 /* 指向信号量的指针 */
 static rt_sem_t dynamic_sem = RT_NULL;
 
-ALIGN(RT_ALIGN_SIZE)
+ALIGN(RT_ALIGN_SIZE)	//对齐
 static char thread1_stack[1024];
-static struct rt_thread thread1;
+static struct rt_thread thread1;	//线程1静态
 static void rt_thread1_entry(void *parameter)
 {
     static rt_uint8_t count = 0;
@@ -77,7 +77,8 @@ int semaphore_sample()
 {
     /* 创建一个动态信号量，初始值是0 */
     dynamic_sem = rt_sem_create("dsem", 0, RT_IPC_FLAG_FIFO);
-    if (dynamic_sem == RT_NULL)
+    
+	if (dynamic_sem == RT_NULL)
     {
         rt_kprintf("create dynamic semaphore failed.\n");
         return -1;

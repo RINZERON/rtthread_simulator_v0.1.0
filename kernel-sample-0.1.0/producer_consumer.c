@@ -34,8 +34,8 @@ static rt_uint32_t set, get;
 static rt_thread_t producer_tid = RT_NULL;
 static rt_thread_t consumer_tid = RT_NULL;
 
-struct rt_semaphore sem_lock;
-struct rt_semaphore sem_empty, sem_full;
+struct rt_semaphore sem_lock;	//lock 信号量 锁
+struct rt_semaphore sem_empty, sem_full;	//空位信号量 满位信号量
 
 /* 生产者线程入口 */
 void producer_thread_entry(void *parameter)
@@ -103,9 +103,9 @@ int producer_consumer(void)
     get = 0;
 
     /* 初始化3个信号量 */
-    rt_sem_init(&sem_lock, "lock",     1,      RT_IPC_FLAG_FIFO);
-    rt_sem_init(&sem_empty, "empty",   MAXSEM, RT_IPC_FLAG_FIFO);
-    rt_sem_init(&sem_full, "full",     0,      RT_IPC_FLAG_FIFO);
+    rt_sem_init(&sem_lock, "lock",     1,      RT_IPC_FLAG_FIFO);	//lock锁
+    rt_sem_init(&sem_empty, "empty",   MAXSEM, RT_IPC_FLAG_FIFO);	//空位
+    rt_sem_init(&sem_full, "full",     0,      RT_IPC_FLAG_FIFO);	//满位
 
     /* 创建生产者线程 */
     producer_tid = rt_thread_create("producer",
