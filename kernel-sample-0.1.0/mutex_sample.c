@@ -5,7 +5,8 @@
  * 
  * Change Logs: 
  * Date           Author       Notes 
- * 2018-08-24     yangjie      the first version 
+ * 2018-08-24     yangjie      the first version
+ * 2025-04-09	  RINZEORN     change
  */ 
 
 /*
@@ -17,7 +18,7 @@
  */
 #include <rtthread.h>
 
-#define THREAD_PRIORITY         8
+#define THREAD_PRIORITY         8	//线程优先级
 #define THREAD_TIMESLICE        5
 
 /* 指向互斥量的指针 */

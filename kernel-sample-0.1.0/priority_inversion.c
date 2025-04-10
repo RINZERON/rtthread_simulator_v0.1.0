@@ -5,7 +5,8 @@
  * 
  * Change Logs: 
  * Date           Author       Notes 
- * 2018-08-24     yangjie      the first version 
+ * 2018-08-24     yangjie      the first version
+ * 2025-04-10     RINZERON     the second version 
  */ 
 
 /*
@@ -41,6 +42,8 @@ static void thread1_entry(void *parameter)
     /* 此时 thread3 持有 mutex，并且 thread2 等待持有 mutex */
 
     /* 检查 rt_kprintf("the producer generates a number: %d\n", array[set%MAXSEM]); 与 thread3 的优先级情况 */
+	rt_kprintf("thread1 test start!\n");
+	
     if (tid2->current_priority != tid3->current_priority)
     {
         /* 优先级不相同，测试失败 */
@@ -61,7 +64,8 @@ static void thread1_entry(void *parameter)
 static void thread2_entry(void *parameter)
 {
     rt_err_t result;
-
+	
+	rt_kprintf("thread2 start!\n");
     rt_kprintf("the priority of thread2 is: %d\n", tid2->current_priority);
 
     /* 先让低优先级线程运行 */
@@ -78,7 +82,15 @@ static void thread2_entry(void *parameter)
     {
         /* 释放互斥锁 */
         rt_mutex_release(mutex);
+		rt_kprintf("the priority of thread3 is: %d\n", tid3->current_priority);
+
     }
+	
+	
+	rt_kprintf("thread2 end!\n");
+	rt_kprintf("the priority of thread2 is: %d\n", tid2->current_priority);
+	rt_kprintf("the priority of thread3 is: %d\n", tid3->current_priority);
+
 }
 
 /* 线程 3 入口 */
@@ -86,7 +98,7 @@ static void thread3_entry(void *parameter)
 {
     rt_tick_t tick;
     rt_err_t result;
-
+	rt_kprintf("thread3 start!\n");
     rt_kprintf("the priority of thread3 is: %d\n", tid3->current_priority);
 
     result = rt_mutex_take(mutex, RT_WAITING_FOREVER);
@@ -99,7 +111,11 @@ static void thread3_entry(void *parameter)
     tick = rt_tick_get();
     while (rt_tick_get() - tick < (RT_TICK_PER_SECOND / 2)) ;
 
+	rt_kprintf("Before release mutex, the priority of thread3 is: %d\n", tid3->current_priority);
     rt_mutex_release(mutex);
+	
+	rt_kprintf("thread3 end!\n");
+	rt_kprintf("the priority of thread3 is: %d\n", tid3->current_priority);
 }
 
 int pri_inversion(void)
@@ -111,6 +127,10 @@ int pri_inversion(void)
         rt_kprintf("create dynamic mutex failed.\n");
         return -1;
     }
+	else
+	{
+		rt_kprintf("create dynamic mutex success.\n");
+	}
 
     /* 创建线程 1 */
     tid1 = rt_thread_create("thread1",
