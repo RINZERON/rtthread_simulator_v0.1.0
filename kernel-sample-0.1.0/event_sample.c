@@ -20,8 +20,9 @@
 #define THREAD_PRIORITY      9
 #define THREAD_TIMESLICE     5
 
-#define EVENT_FLAG3 (1 << 3)
-#define EVENT_FLAG5 (1 << 5)
+#define EVENT_FLAG3 (1 << 3)	// 1左移3位 0x08
+#define EVENT_FLAG5 (1 << 5)	// 1左移5位 0x20
+#define EVENT_FLAG2 (1 << 1)	// 1左移1位 0x02
 
 /* 事件控制块 */
 static struct rt_event event;
@@ -35,10 +36,13 @@ static void thread1_recv_event(void *param)
 {
     rt_uint32_t e;
 
-    /* 第一次接收事件，事件3或事件5任意一个可以触发线程1，接收完后清除事件标志 */
-    if (rt_event_recv(&event, (EVENT_FLAG3 | EVENT_FLAG5),
+	rt_err_t result;
+	result = rt_event_recv(&event, (EVENT_FLAG3 | EVENT_FLAG5),
                       RT_EVENT_FLAG_OR | RT_EVENT_FLAG_CLEAR,
-                      RT_WAITING_FOREVER, &e) == RT_EOK)
+                      RT_WAITING_FOREVER, &e);
+	
+    /* 第一次接收事件，事件3或事件5任意一个可以触发线程1，接收完后清除事件标志 */
+    if (result == RT_EOK)
     {
         rt_kprintf("thread1: OR recv event 0x%x\n", e);
     }
@@ -47,12 +51,32 @@ static void thread1_recv_event(void *param)
     rt_thread_mdelay(1000);
 
     /* 第二次接收事件，事件3和事件5均发生时才可以触发线程1，接收完后清除事件标志 */
-    if (rt_event_recv(&event, (EVENT_FLAG3 | EVENT_FLAG5),
+	result = rt_event_recv(&event, (EVENT_FLAG3 | EVENT_FLAG5),
                       RT_EVENT_FLAG_AND | RT_EVENT_FLAG_CLEAR,
-                      RT_WAITING_FOREVER, &e) == RT_EOK)
+                      RT_WAITING_FOREVER, &e);
+    if (result == RT_EOK)
     {
         rt_kprintf("thread1: AND recv event 0x%x\n", e);
     }
+	
+	rt_kprintf("thread1: delay 1s to prepare the third event\n");
+    rt_thread_mdelay(1000);
+	
+	/* 第三次接收事件，事件2发生时才可以触发线程1，接收完后清除事件标志 */
+//	result = rt_event_recv(&event, EVENT_FLAG2,
+//                      RT_EVENT_FLAG_AND|RT_EVENT_FLAG_OR|RT_EVENT_FLAG_CLEAR,
+//                      RT_WAITING_FOREVER, &e);
+    
+	result = rt_event_recv(&event, EVENT_FLAG2,
+                      RT_EVENT_FLAG_AND,
+                      RT_WAITING_FOREVER, &e);
+	
+	if (result == RT_EOK)
+    {
+        rt_kprintf("thread1: one recv event 0x%x\n", e);
+    }
+	
+	
     rt_kprintf("thread1 leave.\n");
 }
 
@@ -74,6 +98,10 @@ static void thread2_send_event(void *param)
 
     rt_kprintf("thread2: send event3\n");
     rt_event_send(&event, EVENT_FLAG3);
+	rt_thread_mdelay(200);
+	
+	rt_kprintf("thread2: send event2\n");
+	rt_event_send(&event, EVENT_FLAG2);
     rt_kprintf("thread2 leave.\n");
 }
 
