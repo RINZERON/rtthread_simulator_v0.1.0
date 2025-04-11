@@ -5,7 +5,8 @@
  * 
  * Change Logs: 
  * Date           Author       Notes 
- * 2018-08-24     yangjie      the first version 
+ * 2018-08-24     yangjie      the first  version 
+ * 2025-04-11     RINZERON     the second version
  */ 
 
 /*
@@ -22,11 +23,13 @@
 /* 邮箱控制块 */
 static struct rt_mailbox mb;
 /* 用于放邮件的内存池 */
-static char mb_pool[128];
+static char mb_pool[32];	// 32个字节
 
 static char mb_str1[] = "I'm a mail!";
 static char mb_str2[] = "this is another mail!";
 static char mb_str3[] = "over";
+
+static char mb_str_emergency[] = "emergency";
 
 ALIGN(RT_ALIGN_SIZE)
 static char thread1_stack[1024];
@@ -64,9 +67,10 @@ static struct rt_thread thread2;
 static void thread2_entry(void *parameter)
 {
     rt_uint8_t count;
-
+	rt_err_t result;
+	
     count = 0;
-    while (count < 10)
+    while (count < 8)
     {
         count ++;
         if (count & 0x1)
@@ -79,7 +83,25 @@ static void thread2_entry(void *parameter)
             /* 发送mb_str2地址到邮箱中 */
             rt_mb_send(&mb, (rt_uint32_t)&mb_str2);
         }
-
+		
+		if (count == 8 )
+		{
+			while(1)
+			{
+				result = rt_mb_send_wait(&mb, (rt_uint32_t)&mb_str_emergency,10);
+				if(result == RT_EOK)
+				{
+					rt_kprintf("%x\n",result);
+				}
+				else
+				{
+					rt_kprintf("%x\n",result);
+					count++;
+					break;
+				}
+			}
+		}
+		
         /* 延时200ms */
         rt_thread_mdelay(200);
     }
@@ -97,7 +119,9 @@ int mailbox_sample(void)
                         "mbt",                      /* 名称是mbt */
                         &mb_pool[0],                /* 邮箱用到的内存池是mb_pool */
                         sizeof(mb_pool) / 4,        /* 邮箱中的邮件数目，因为一封邮件占4字节 */
-                        RT_IPC_FLAG_FIFO);          /* 采用FIFO方式进行线程等待 */
+						RT_IPC_FLAG_PRIO			 /* 采用PRIO方式进行线程等待 */                        
+//						RT_IPC_FLAG_FIFO			 /* 采用FIFO方式进行线程等待 */
+						);         
     if (result != RT_EOK)
     {
         rt_kprintf("init mailbox failed.\n");
@@ -119,7 +143,7 @@ int mailbox_sample(void)
                    RT_NULL,
                    &thread2_stack[0],
                    sizeof(thread2_stack),
-                   THREAD_PRIORITY, THREAD_TIMESLICE);
+                   THREAD_PRIORITY-1, THREAD_TIMESLICE);
     rt_thread_startup(&thread2);
     return 0;
 }

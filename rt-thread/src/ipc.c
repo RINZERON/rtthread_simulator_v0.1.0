@@ -1587,6 +1587,10 @@ rt_err_t rt_mb_send(rt_mailbox_t mb, rt_uint32_t value)
 }
 RTM_EXPORT(rt_mb_send);
 
+
+
+
+
 /**
  * This function will receive a mail from mailbox object, if there is no mail
  * in mailbox object, the thread shall wait for a specified time.
